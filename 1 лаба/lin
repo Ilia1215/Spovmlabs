@@ -1,0 +1,76 @@
+#include <iostream>
+#include <ncurses.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <sys/time.h>
+
+using namespace std;
+
+int main()
+{
+	string sTimestamp;
+    char acTimestamp[256];
+    struct timeval tv;
+    struct tm *tm;
+
+	pid_t pid;
+
+	switch(pid = fork())
+	{
+		case -1:// error
+		{
+			cout<<"Error. Exit from the parent process!"<<endl;
+			exit(1);
+		}
+		
+		case 0://child
+		{
+
+			cout<<"Create child process sucess!!!"<<endl;
+    		gettimeofday(&tv, NULL);
+    		tm = localtime(&tv.tv_sec);
+    		sprintf(acTimestamp, "%04d-%02d-%02d %02d:%02d:%02d.%03d\n",
+            tm->tm_year + 1900,
+            tm->tm_mon + 1,
+            tm->tm_mday,
+            tm->tm_hour,
+            tm->tm_min,
+            tm->tm_sec,
+            (int) (tv.tv_usec / 1000)
+        );
+
+	    	sTimestamp = acTimestamp;
+
+    		cout <<"Time child process - " << sTimestamp << endl;
+			break;
+		}
+
+		default://parent
+		{
+			cout<<"Create parent process sucess!!!"<<endl;
+
+    		gettimeofday(&tv, NULL);
+
+    		tm = localtime(&tv.tv_sec);
+
+    		sprintf(acTimestamp, "%04d-%02d-%02d %02d:%02d:%02d.%03d\n",
+            tm->tm_year + 1900,
+            tm->tm_mon + 1,
+            tm->tm_mday,
+            tm->tm_hour,
+            tm->tm_min,
+            tm->tm_sec,
+            (int) (tv.tv_usec / 1000)
+        );
+
+    		sTimestamp = acTimestamp;
+    		cout <<"Time parent process - " << sTimestamp << endl;
+		}
+
+		wait(NULL);
+		break;
+	}
+
+	return 0;
+}
